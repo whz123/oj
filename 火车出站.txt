@@ -1,0 +1,84 @@
+————————— 《题目》 ————————
+问题 F: 火车出站
+时间限制: 1 Sec  内存限制: 32 MB
+提交: 70  解决: 24
+[提交][状态][讨论版]
+题目描述
+铁路进行列车调度时，常把站台设计成栈式结构的站台，试问：
+设有编号为1到n的n辆列车，顺序开入栈式结构的站台，则可能的出栈序列有多少种？
+输入
+输入包含多组测试数据。每组为一个正整数n（1<=n<=20），表示有n辆列车。
+输出
+输出可能的出栈序列有多少种。
+样例输入
+4
+3
+样例输出
+14
+5
+————————《解题思路》————————
+n个元素顺序入栈，则可能出栈序列有C(2n,n)-C（2n,n+1）种；
+————————《解题难点》————————
+如何求C(2n,n)-C（2n,n+1），防止其溢出；
+————————   《代码》   ————————
+#include<stdio.h>
+#include<iostream>
+using namespace std;
+int main()
+{
+	long long n;
+	while (cin >> n)
+	{
+		if (n == 1)
+		{
+			cout << "1\n";
+			continue;
+		}
+		long long sum=2*n,sum1=1;
+		long long a[40],b[50];
+		for (int i = 2; i <= n; i++)
+		{
+			a[i] = i;
+		}
+		for (int i = 2 * n - 1; i >= n + 2; i--)
+		{
+			b[i] = i;
+		}
+		for (int i = 2 * n - 1; i >= n + 2; i--)
+		{
+			for (int t = 2; t <= n; t++)
+			{
+				if (a[t] != 1 && b[i] % a[t] == 0)
+				{
+					b[i] = b[i] / a[t];
+					a[t] = 1;
+					break;
+				}
+			}
+		}
+		for (int t = 2 * n-1; t >= n + 2; t--)
+		{
+			int flag = 0;
+			for (int i = n; i >= 2; i--)
+			{
+				if (a[i] != 1 && sum%a[i] == 0)
+				{
+					sum = sum / a[i] * b[t];
+					a[i] = 1;
+					flag = 1;
+					break;
+				}
+			}
+			if (flag==0)
+			{
+				sum = sum * b[t];
+			}
+		}
+		for (int i = n; i >= 2; i--)
+		{
+			sum1 = sum1 * a[i];
+		}
+		cout << sum/sum1<<endl;
+	}
+	return 0;
+}
