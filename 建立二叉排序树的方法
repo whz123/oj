@@ -1,0 +1,239 @@
+————————《题目》————————
+问题 J: 单词检查(Ⅱ)- 二叉排序树实现
+时间限制: 2 Sec  内存限制: 128 MB
+提交: 83  解决: 22
+[提交][状态][讨论版]
+题目描述
+许多应用程序，如字处理软件，邮件客户端等，都包含了单词检查特性。单词检查是根据字典，找出输入文本中拼错的单词，我们认为凡是不出现在字典中的单词都是错误单词。不仅如此，一些检查程序还能给出类似拼错单词的修改建议单词。 例如字典由下面几个单词组成：
+ bake cake main rain vase
+如果输入文件中有词vake ，检查程序就能发现其是一个错误的单词，并且给出 bake, cake或vase做为修改建议单词。
+修改建议单词可以采用如下生成技术：
+ (1)在每一个可能位置插入‘a-'z'中的一者
+ (2)删除单词中的一个字符
+ (3)用‘a'-'z'中的一者取代单词中的任一字符
+
+
+很明显拼写检查程序的核心操作是在字典中查找某个单词，如果字典很大，性能无疑是非常关键的。
+
+
+你写的程序要求读入字典文件，然后对一个输入文件的单词进行检查，列出其中的错误单词并给出修改建议。
+
+
+
+本题要求使用使用二叉排序树维护字典。为了防止有些人取巧，本题要求输出相应的二叉排序树后序遍历。
+
+
+
+输入
+输入分为两部分。
+第一部分是字典，每个单词占据一行，最后以仅包含'#'的一行表示结束。所有的单词都是不同的，字典中最多10000个单词。
+
+输入的第二部分包含了所有待检测的单词，单词数目不超过50。每个单词占据一行，最后以仅包含'#'的一行表示结束。
+
+字典中的单词和待检测的单词均由小写字母组成，并且单词最大长度为15。
+输出
+第一行输出二叉排序树字典的后序遍历，每一个单词后面跟一个空格。
+
+
+然后按照检查次序每个单词输出一行，该行首先输出单词自身。如果单词在字典中出现，接着输出" is correct"。如果单词是错误的，那么接着输出':'，如果字典中有建议修改单词，则按照字典中出现的先后次序输出所有的建议修改单词（每个前面都添加一个空格），如果无建议修改单词，在':'后直接换行。
+
+样例输入
+i
+is
+has
+have
+be
+my
+more
+contest
+me
+too
+if
+award
+#
+me
+aware
+m
+contest
+hav
+oo
+or
+i
+fi
+mre
+#
+样例输出
+award contest be have has if me more too my is i 
+me is correct
+aware: award
+m: i my me
+contest is correct
+hav: has have
+oo: too
+or:
+i is correct
+fi: i
+mre: more me
+——————————《解题难点》————————
+如何建立二叉排序树
+——————————《    代码   》————————
+#include<iostream>
+#include<stdio.h>
+#include<string.h>
+#include<algorithm>
+using namespace std;
+typedef struct node
+{
+	char s[16];
+	node *left, *right;
+	int length;
+	int g;
+}binode,*bitree;
+char s3[10005][16];
+void judge(char s[], int length, bitree L, int a[], int &w,int &flag)
+{
+	if (L)
+	{
+		if (length == L->length)
+		{
+			if (!strcmp(s, L->s))
+			{
+				flag = 1;
+			}
+			else
+			{
+				int z = 1;
+				for (int t = 0; s[t] && z != 3; t++)
+				{
+					if (s[t] != L->s[t])
+					{
+						z++;
+					}
+				}
+				if (z != 3)
+				{
+					a[w++]=L->g;
+
+				}
+			}
+		}
+		else if (length + 1 == L->length)
+		{
+			int z = 1;
+			for (int t = 0, p = 0; s[t] && z != 3;)
+			{
+				if (s[t] != L->s[p])
+				{
+					p++;
+					z++;
+				}
+				else
+				{
+					p++;
+					t++;
+				}
+			}
+			if (z != 3)
+			{
+				a[w++]=L->g;
+			}
+		}
+		else if (length - 1 == L->length)
+		{
+			int z = 1;
+			for (int t = 0, p = 0; s[t] && z != 3;)
+			{
+				if (s[t] != L->s[p])
+				{
+					t++;
+					z++;
+				}
+				else
+				{
+					p++;
+					t++;
+				}
+			}
+			if (z != 3)
+			{
+				a[w++]=L->g;
+			}
+		}
+		judge(s, length, L->left, a, w, flag);
+		judge(s, length, L->right, a, w, flag);
+	}
+}
+void insertBST(bitree &T, binode *S)//建立二叉排序树部分
+{
+	if (!T)
+	{
+		T = S;
+	}
+	else if (strcmp(T->s, S->s) > 0)
+	{
+		insertBST(T->left,S);
+	}
+	else {
+		insertBST(T->right, S);
+	}
+}
+void createBitreenode(bitree &T)//建立二叉排序树部分
+{
+	T = NULL;
+	binode *S;
+	int y=0;
+	while ((S=new binode)&&cin >> S->s&&S->s[0] != '#')
+	{   strcpy(s3[y],S->s);
+		S->length = strlen(S->s);
+		S->g=y;
+		y++;
+		S->left = S->right = NULL;
+		insertBST(T,S);
+	}
+}
+void translate(bitree T)
+{
+	if (T)
+	{
+		translate(T->left);
+		translate(T->right);
+			cout << T->s<<" ";
+	}
+}
+int main()
+{
+	bitree L;
+	createBitreenode(L);
+	char s[50][16];
+	int z = 0;
+	while (cin >> s[z] && s[z][0] != '#')
+	{
+		z++;
+	}
+	translate(L);
+	cout << "\n";
+	for (int i = 0; i < z; i++)
+	{
+		int a[10005];
+		int w = 0, flag = 0;
+		judge(s[i], strlen(s[i]), L, a, w, flag);
+		if(flag==1)
+		{
+			cout << s[i] << " is correct\n";
+		}
+		else {
+			cout <<s[i] << ":";
+			if (w != 0)
+			{
+			    sort(a,a+w);
+				for (int i = 0; i < w; i++)
+				{
+					cout << " " << s3[a[i]];
+				}
+
+			}
+			cout << endl;
+		}
+	}
+	return 0;
+}
