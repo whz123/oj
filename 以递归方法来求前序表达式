@@ -1,0 +1,134 @@
+——————————《题目》——————————
+问题 P: 表达式树的值
+时间限制: 1 Sec  内存限制: 128 MB
+提交: 483  解决: 313
+[提交][状态][讨论版]
+题目描述
+读入表达式树的先序遍历字符串，求其值。运算符只可能是加减乘除，保证输入的每个子表达式树的结果都是整数值且可以用C语言的int类型表达。
+
+输入
+输入由多组测试数据组成。
+
+每组数据包含一行字符串，即表达式树的先序遍历序列，字符串长度大于0且不超过100。
+输出
+见样例。
+样例输入
++ 13 # # * 5 # # 9 # #
+* + 13 # # 5 # # 9 # #
+样例输出
+(13+(5*9))=58
+((13+5)*9)=162
+——————————《解题难点》—————————
+如何以递归方法来求前序表达式
+———————————《代码》——————————
+#include<iostream>
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+using namespace std;
+typedef struct node
+{
+    node *left, *right;
+    char s[15];
+}binode, *bitree;
+typedef struct node1
+{
+    node1 *next;
+    int m;
+}node1,*linkstack;
+void createbitree(bitree &T, char s[][15], int &w)
+{
+    if (s[w][0] == '#')
+    {
+        T = NULL;
+        w++;
+    }
+    else
+    {
+        T = new node;
+        strcpy(T->s, s[w++]);
+        createbitree(T->left, s, w);
+        createbitree(T->right, s, w);
+    }
+ 
+}
+void traverse(bitree T,linkstack &S)
+{
+    if (T)
+    {
+        if (T->left)
+            cout << "(";
+        traverse(T->left,S); 
+        cout << T->s;
+        traverse(T->right,S);
+        if(T->right)
+        cout << ")";
+    }
+}
+int he(bitree &T)//递归方法来求前序表达式
+{
+    if (T) {
+        if (T->right && !(T->right->s[0] <= '9'&&T->right->s[0] >= '0'))
+        {
+            int z = he(T->right);
+            sprintf(T->right->s, "%d", z);
+        }
+        if (T->left && !(T->left->s[0] <= '9'&&T->left->s[0] >= '0'))
+        {
+            int z = he(T->left);
+            sprintf(T->left->s, "%d", z);
+        }
+        if (T->right&&T->left && (T->right->s[0] <= '9'&&T->right->s[0] >= '0') && (T->left->s[0] <= '9'&&T->left->s[0] >= '0'))
+        {
+            int a = atoi(T->left->s), b = atoi(T->right->s);
+            switch (T->s[0])
+            {
+            case '+':
+                return a + b;
+            case '-':
+                return a - b;
+            case '*':
+                return a * b;
+            case '/':
+                return a / b;
+            }
+        }
+        if (T->right == NULL && T->left == NULL && (T->s[0] <= '9'&&T->s[0] >= '0'))
+            return atoi(T->s);
+    }
+}
+int main()
+{
+    char s[110];
+    while (gets(s) != NULL)
+    {
+        linkstack S;
+        S = NULL;
+        bitree T;
+        T = NULL;
+        char s1[110][15];
+        int t = 0, z = 0;
+        for (int i = 0; s[i];)
+        {
+            while (s[i] != ' '&&s[i])
+            {
+                s1[z][t] = s[i];
+                i++;
+                s1[z][++t] = '\0';
+            }
+            z++;
+            while (s[i] == ' ')
+            {
+                i++;
+            }
+            t = 0;
+        }
+        int w = 0;
+        createbitree(T, s1, w);
+        traverse(T,S);
+        cout << "=" << he(T);
+        cout << endl;
+    }
+    return 0;
+ 
+}
