@@ -1,0 +1,236 @@
+——————————《问题》——————————
+问题 N: 二叉树的创建和文本显示
+时间限制: 1 Sec  内存限制: 128 MB
+提交: 772  解决: 348
+[提交][状态][讨论版]
+题目描述
+编一个程序，读入先序遍历字符串，根据此字符串建立一棵二叉树（以指针方式存储）。
+例如如下的先序遍历字符串：
+A ST C # # D 10 # G # # F # # #
+各结点数据（长度不超过3），用空格分开，其中“#”代表空树。
+建立起此二叉树以后，再按要求输出二叉树。
+
+输入
+输入由多组测试数据组成。
+
+每组数据包含一行字符串，即二叉树的先序遍历，字符串长度大于0且不超过100。
+
+
+
+输出
+对于每组数据，显示对应的二叉树，然后再输出一空行。输出形式相当于常规树形左旋90度。见样例。 注意二叉树的每一层缩进为4，每一行行尾没有空格符号。
+
+
+样例输入
+A ST C # # D 10 # G # # F # # #
+4 2 1 # # 3 # # 5 # 6 # #
+样例输出
+A
+            F
+        D
+                G
+            10
+    ST
+        C
+
+        6
+    5
+4
+        3
+    2
+        1
+———————————《解题难点》——————————
+1.怎么控制多组数据输入（不能用while（1），这样会导致运行错误）
+2.怎么创建二叉树
+———————————《    代码   》——————————
+#include<iostream>
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+using namespace std;
+typedef struct node
+{
+    node *left, *right;
+    char s[4];
+}binode, *bitree;
+void createbitree(bitree &T, char s[][4], int &w)//以访问二维数组来创建二叉树
+{
+    if (s[w][0] == '#')
+    {
+        T = NULL;
+        w++;
+    }
+    else
+    {
+        T = new node;
+        strcpy(T->s, s[w++]);
+        createbitree(T->left, s, w);
+        createbitree(T->right, s, w);
+    }
+ 
+}
+void traverse(bitree T, int &z)//这里是难点   也是精华所在
+{
+    if (T)
+    {
+        z++;//每次往下遍历一次，深度就加1，z就加1
+        traverse(T->right, z);
+        for (int i = 0; i < z - 1; i++)
+        {
+            cout << "    ";
+        }
+        cout << T->s << endl;
+        traverse(T->left, z);
+        z--;
+    }
+ 
+}
+int main()
+{
+    char s[110];
+    while (gets(s) != NULL)//输入一个字符串，只有这样做才会解决多组数据输入而不能用while(1)的问题
+    {
+        bitree T;
+        T = NULL;
+        char s1[110][4];
+        int t = 0, z = 0;
+        for (int i = 0; s[i];)//将输入的字符串分割成有效的成分并存入二维数组中
+        {
+            while (s[i] != ' '&&s[i])
+            {
+                s1[z][t] = s[i];
+                i++;
+                s1[z][++t] = '\0';
+            }
+            z++;
+            while (s[i] == ' ')
+            {
+                i++;
+            }
+            t = 0;
+        }
+        int w = 0;
+        createbitree(T, s1, w);
+        int y = 0;
+        traverse(T, y);
+        cout << endl;
+    }
+    return 0;
+  
+时间限制: 1 Sec  内存限制: 128 MB
+提交: 772  解决: 348
+[提交][状态][讨论版]
+题目描述
+编一个程序，读入先序遍历字符串，根据此字符串建立一棵二叉树（以指针方式存储）。
+例如如下的先序遍历字符串：
+A ST C # # D 10 # G # # F # # #
+各结点数据（长度不超过3），用空格分开，其中“#”代表空树。
+建立起此二叉树以后，再按要求输出二叉树。
+
+输入
+输入由多组测试数据组成。
+
+每组数据包含一行字符串，即二叉树的先序遍历，字符串长度大于0且不超过100。
+
+
+
+输出
+对于每组数据，显示对应的二叉树，然后再输出一空行。输出形式相当于常规树形左旋90度。见样例。 注意二叉树的每一层缩进为4，每一行行尾没有空格符号。
+
+
+样例输入
+A ST C # # D 10 # G # # F # # #
+4 2 1 # # 3 # # 5 # 6 # #
+样例输出
+A
+            F
+        D
+                G
+            10
+    ST
+        C
+
+        6
+    5
+4
+        3
+    2
+        1
+———————————《解题难点》——————————
+1.怎么控制多组数据输入（不能用while（1），这样会导致运行错误）
+2.怎么创建二叉树
+———————————《    代码   》——————————
+#include<iostream>
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+using namespace std;
+typedef struct node
+{
+    node *left, *right;
+    char s[4];
+}binode, *bitree;
+void createbitree(bitree &T, char s[][4], int &w)//以访问二维数组来创建二叉树
+{
+    if (s[w][0] == '#')
+    {
+        T = NULL;
+        w++;
+    }
+    else
+    {
+        T = new node;
+        strcpy(T->s, s[w++]);
+        createbitree(T->left, s, w);
+        createbitree(T->right, s, w);
+    }
+ 
+}
+void traverse(bitree T, int &z)//这里是难点   也是精华所在
+{
+    if (T)
+    {
+        z++;//每次往下遍历一次，深度就加1，z就加1
+        traverse(T->right, z);
+        for (int i = 0; i < z - 1; i++)
+        {
+            cout << "    ";
+        }
+        cout << T->s << endl;
+        traverse(T->left, z);
+        z--;
+    }
+ 
+}
+int main()
+{
+    char s[110];
+    while (gets(s) != NULL)//输入一个字符串，只有这样做才会解决多组数据输入而不能用while(1)的问题
+    {
+        bitree T;
+        T = NULL;
+        char s1[110][4];
+        int t = 0, z = 0;
+        for (int i = 0; s[i];)//将输入的字符串分割成有效的成分并存入二维数组中
+        {
+            while (s[i] != ' '&&s[i])
+            {
+                s1[z][t] = s[i];
+                i++;
+                s1[z][++t] = '\0';
+            }
+            z++;
+            while (s[i] == ' ')
+            {
+                i++;
+            }
+            t = 0;
+        }
+        int w = 0;
+        createbitree(T, s1, w);
+        int y = 0;
+        traverse(T, y);
+        cout << endl;
+    }
+    return 0;
+  
